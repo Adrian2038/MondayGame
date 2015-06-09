@@ -1,3 +1,12 @@
+//
+//  MainViewController.m
+//  Snap
+//
+//  Created by Adrian on 15/3/12.
+//  Copyright (c) 2015年 Adrian. All rights reserved.
+//
+
+
 
 #import "MainViewController.h"
 #import "UIButton+SnapAdditions.h"

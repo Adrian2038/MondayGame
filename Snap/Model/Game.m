@@ -275,8 +275,6 @@ GameState;
             NSLog(@"State: %d, received Responses: %d", _state, [self receivedResponsesFromAllPlayers]);
 			if (_state == GameStateWaitingForReady && [self receivedResponsesFromAllPlayers])
 			{
-                NSLog(@"Beginning game");
-                
 				[self beginGame];
 			}
 			break;
@@ -341,22 +339,26 @@ GameState;
         NSLog(@"First deal cards");
 
         _firstDealCards = NO;
-        NSLog(@"deck = %@", self.deck);
         
         for (int i = 0; i < 12; i++)
         {
             NSLog(@"game'deck cards count is %d", self.deck.cardsRemaning);
 
             Card *card = [self.deck draw];
-            
-            // It may useful for the game
             [self.dealingCards addObject:card];
-            
         }
     }
     else
     {
         NSLog(@"Not first deal cards");
+
+        for (int i = 0; i < 3; i++) {
+            
+            NSLog(@"game'deck cards count is %d", self.deck.cardsRemaning);
+            
+            Card *card = [self.deck draw];
+            [self.dealingCards addObject:card];
+        }
     }
     
     if (!self.isSingleGame) {
@@ -419,8 +421,6 @@ GameState;
     [self sendPacketToServer:responsePacket];
     
     _state = GameStatePlaying;
-    
-    NSLog(@"first deal cards : %d", _firstDealCards);
     
     if (_firstDealCards) {
         _firstDealCards = NO;
@@ -572,15 +572,11 @@ GameState;
 - (void)selectWithCard:(Card *)card
 {
     [self.matchCards addObject:card];
-        
-    NSLog(@"Game selcted card is :%@, and matchCards is : %@", card, self.matchCards);
 }
 
 - (void)deselctWithCard:(Card *)card
 {
     [self.matchCards removeObject:card];
-    
-    NSLog(@"Game de-selcted card is :%@, and matchCards is : %@", card, self.matchCards);
 }
 
 #pragma mark - Helper
@@ -663,42 +659,52 @@ GameState;
     if (colorMatch && shadingMatch && symbolMatch && valueMatch)
     {
         [self matchASetCard];
-        NSLog(@"Congraduation ! It's a set !");
+        NSLog(@"Congraduation ! It's a set ! and the match Cards is %@", self.matchCards);
     }
     else
     {
         [self.delegate gameMatchAWrongSet:self];
-        NSLog(@"Oh No ! It's not a set !");
+        NSLog(@"Oh No ! It's not a set ! and the wrong Cards is %@", self.matchCards);
     }
     
-    NSLog(@"The choose match cards is : %@", self.matchCards);
+//    NSLog(@"The choose match cards is : %@", self.matchCards);
 }
 
 - (void)matchASetCard
 {
-    
     // judge the game is server or client ,then send message to the server or the clients
     if (self.isServer) {
         
-        // is the game is single player , there is some little bugs
-        NSDictionary *cards = [NSDictionary dictionaryWithObject:self.matchCards forKey:_session.peerID];
-        PacketPlayerCallSet *packet = [PacketPlayerCallSet packetWithPeerId:_session.peerID withCards:cards];
+        if (self.isSingleGame) {
+            // is the game is single player , there is some little bugs
+            
+            NSArray *allKeys = [_players allKeys];
+            NSString *singleKey = [allKeys firstObject];
+            Player *player = [_players objectForKey:singleKey];
+            
+            player.gamesWon++;
+            
+            [self.delegate gameMatchACorrectSet:self withPlayer:player Cards:self.matchCards];
+            [self.matchCards removeAllObjects];
+            [self.dealingCards removeAllObjects];
+            
+            [self performSelector:@selector(dealCards) withObject:nil afterDelay:1.0];
+        }
+        else {
+            NSDictionary *cards = [NSDictionary dictionaryWithObject:self.matchCards forKey:_session.peerID];
+            PacketPlayerCallSet *packet = [PacketPlayerCallSet packetWithPeerId:_session.peerID withCards:cards];
+            
+            [self sendPacketToAllClients:packet];
+            
+            [self.delegate gameMatchACorrectSet:self withPlayer:nil Cards:self.matchCards];
+        }
         
-        [self sendPacketToAllClients:packet];
-        
-        [self.delegate gameMatchACorrectSet:self withPlayer:nil Cards:self.matchCards];
     }
     else {
-        
-        
         self.matchSessionPeerId = _session.peerID;
-
         NSDictionary *cards = [NSDictionary dictionaryWithObject:self.matchCards forKey:self.matchSessionPeerId];
-
-        
         PacketPlayerShouldCallSet *packet = [PacketPlayerShouldCallSet packetWithPeerId:self.matchSessionPeerId
                                                                               withCards:cards];
-        
         [self sendPacketToServer:packet];
     }
 }

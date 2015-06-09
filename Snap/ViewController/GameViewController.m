@@ -2,8 +2,8 @@
 //  GameViewController.m
 //  Snap
 //
-//  Created by Ray Wenderlich on 5/25/12.
-//  Copyright (c) 2012 Hollance. All rights reserved.
+//  Created by Adrian on 15/3/12.
+//  Copyright (c) 2015年 Adrian. All rights reserved.
 //
 
 #import "GameViewController.h"
@@ -18,6 +18,8 @@ const CGFloat cardViewStartPointX = 90.0f;
 const CGFloat cardViewStartPointY = 68.0f;
 const CGFloat cardViewHorizontalGape = 13.0f;
 const CGFloat cardViewVerticalGape = 17.0f;
+
+#define NULLPOINTS @"13"
 
 
 @interface GameViewController () <CardViewDelegate>
@@ -53,6 +55,8 @@ const CGFloat cardViewVerticalGape = 17.0f;
 
 
 @property (nonatomic, strong) NSMutableArray *cardsView;
+@property (nonatomic, strong) NSMutableArray *points;    // Records the point for the cardView
+@property (nonatomic, assign) BOOL firstDealCards;
 
 @end
 
@@ -120,6 +124,8 @@ const CGFloat cardViewVerticalGape = 17.0f;
 	self.wrongSnapImageView.hidden = YES;
 	self.correctSnapImageView.hidden = YES;
     
+    self.firstDealCards = YES;
+    
 	[self hidePlayerLabels];
 	[self hideActivePlayerIndicator];
 	[self hideSnapIndicators];
@@ -146,6 +152,16 @@ const CGFloat cardViewVerticalGape = 17.0f;
         _cardsView = [NSMutableArray arrayWithCapacity:81];
     }
     return _cardsView;
+}
+
+- (NSMutableArray *)points
+{
+    if (!_points) {
+        _points = [NSMutableArray arrayWithArray:@[@"0", @"1", @"2", @"3", @"4", @"5",
+                                                   @"6", @"7", @"8", @"9", @"10", @"11"]];
+        
+    }
+    return _points;
 }
 
 #pragma mark - Game UI
@@ -235,6 +251,8 @@ const CGFloat cardViewVerticalGape = 17.0f;
     CGFloat x;
     CGFloat y;
     
+    count ++;
+    
     if (count >= 1 && count <= 4)
     {
         x = cardViewStartPointX + ((count - 1) * 2 + 1) / 2.0 * cardWidth +
@@ -249,7 +267,7 @@ const CGFloat cardViewVerticalGape = 17.0f;
         y = cardViewStartPointY + cardHeight * 3/2.0f + cardViewVerticalGape;
         point = CGPointMake(x, y);
     }
-    else    // count >= 9 & count <= 12
+    else    // count >= 9 && count <= 12
     {
         x = cardViewStartPointX + ((count - 9) * 2 + 1) / 2.0 * cardWidth +
         cardViewHorizontalGape * (count - 9);
@@ -399,7 +417,7 @@ const CGFloat cardViewVerticalGape = 17.0f;
     
     self.centerLabel.text = NSLocalizedString(@"", @"Status : dealing cards");
     
-    self.snapButton.hidden = YES;
+//    self.snapButton.hidden = YES;
     self.nextRoundButton.hidden = YES;
     
     NSTimeInterval delay = 1.0f;
@@ -408,44 +426,86 @@ const CGFloat cardViewVerticalGape = 17.0f;
     [_dealingCardsSound prepareToPlay];
     [_dealingCardsSound performSelector:@selector(play) withObject:nil afterDelay:delay];
     
-    for (int t = 1; t <= cardsCount; t++)
+    for (int t = 0; t < cardsCount; t++)
     {
         CardView *cardView = [[CardView alloc] initWithFrame:CGRectMake(0, 0, cardWidth, cardHeight)];
-        cardView.card = [self cardAtDealingCards:t-1];
+        cardView.card = [self cardAtDealingCards:t];
         cardView.delegate = self;
         
-        // I may not need the card view container
-//        [self.cardContainerView addSubview:cardView];
         [self.view addSubview:cardView];
         
-        // the cardsView property is to detect whether match a set
-        [self.cardsView addObject:cardView];
-        NSLog(@"self.cardsView = %@", self.cardsView);
-        
-        [cardView animationDealingToPosition:[self pointForCardViewCount:t] withDelay:delay];
+        if (self.firstDealCards) {
+            [self.cardsView addObject:cardView];
+            [cardView animationDealingToPosition:[self pointForCardViewCount:t]
+                                       withDelay:delay];
+        }
+        else {
+            [self.cardsView insertObject:cardView atIndex:[self indexForCardView]];
+            [cardView animationDealingToPosition:[self pointForCardViewCount:[self indexForPoint]]
+                                       withDelay:delay];
+        }
         delay += 0.1f;
     }
     
     [self performSelector:@selector(afterDealing) withObject:nil afterDelay:delay];
 }
 
+- (NSInteger)indexForCardView
+{
+    NSInteger index = 0;
+    
+    for (id obj in self.points) {
+        if ([obj isEqualToString:NULLPOINTS]) {
+            index = [self.points indexOfObject:obj];
+            break;
+        }
+    }
+    
+    return index;
+}
+
+
+- (NSInteger)indexForPoint
+{
+    NSInteger index = 0;
+    
+    for (id obj in self.points) {        
+        if ([obj isEqualToString:NULLPOINTS]) {
+            index = [self.points indexOfObject:obj];
+            break;
+        }
+    }
+    
+    NSString *point = [NSString stringWithFormat:@"%d",index];
+    [self.points replaceObjectAtIndex:index withObject:point];
+    
+    return index;
+}
+
 // do the aniamtion here
 - (void)gameMatchACorrectSet:(Game *)game withPlayer:(Player *)player Cards:(NSArray *)cards
 {
-    [_correctMatchSound play];
+    self.firstDealCards = NO;
     
+    [_correctMatchSound play];
+    [self updateWinsLabels];
     [self performCorrectSetAnimation];
     
+    // record the point
     for (id card in cards) {
-        [_dealingCards enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if ([obj isEqual:card]) {
+        [self.cardsView enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            CardView *cardView = (CardView *)obj;
+            if ([cardView.card isEqual:card]) {
+                NSInteger index = [self.cardsView indexOfObject:cardView];
                 *stop = YES;
                 if (*stop == YES) {
-                    [_dealingCards removeObject:obj];
+                    [self.points replaceObjectAtIndex:index withObject:NULLPOINTS];
                 }
             }
         }];
     }
+
+    // replace the card view
     for (id card in cards) {
         [self.cardsView enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             CardView *cardView = (CardView *)obj;
@@ -458,9 +518,6 @@ const CGFloat cardViewVerticalGape = 17.0f;
             }
         }];
     }
-    
-    NSLog(@"_dealing cards count after remove is : %d", [_dealingCards count]);
-    NSLog(@"card view 's count after remove is : %d", [self.cardsView count]);
 }
 
 - (void)gameMatchAWrongSet:(Game *)game
@@ -468,6 +525,11 @@ const CGFloat cardViewVerticalGape = 17.0f;
     [_wrongMatchSound play];
     
     [self performWrongSetAnimation];
+}
+
+- (void)gameDeckDrawCardsAgain:(Game *)game
+{
+    
 }
 
 

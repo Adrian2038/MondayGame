@@ -3,7 +3,7 @@
 //  Snap
 //
 //  Created by Adrian on 15/5/6.
-//  Copyright (c) 2015年 Hollance. All rights reserved.
+//  Copyright (c) 2015年 Adrian. All rights reserved.
 //
 // .........................
 // The default set image is rect , and with the game's effect,

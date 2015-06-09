@@ -2,8 +2,8 @@
 //  HostViewController.m
 //  Snap
 //
-//  Created by Ray Wenderlich on 5/24/12.
-//  Copyright (c) 2012 Hollance. All rights reserved.
+//  Created by Adrian on 15/3/12.
+//  Copyright (c) 2015年 Adrian. All rights reserved.
 //
 
 #import "HostViewController.h"

@@ -2,8 +2,8 @@
 //  PacketDealCards.m
 //  Snap
 //
-//  Created by Adrian on 15/5/11.
-//  Copyright (c) 2015年 Hollance. All rights reserved.
+//  Created by Adrian on 15/4/7.
+//  Copyright (c) 2015年 Adrian. All rights reserved.
 //
 
 #import "PacketDealCards.h"
