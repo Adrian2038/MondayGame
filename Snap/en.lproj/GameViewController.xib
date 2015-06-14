@@ -71,7 +71,7 @@
 								<int key="IBUIContentMode">7</int>
 								<bool key="IBUIUserInteractionEnabled">NO</bool>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-								<string key="IBUIText">Doyle wins Phil's cards</string>
+								<string key="IBUIText"/>
 								<object class="NSColor" key="IBUITextColor">
 									<int key="NSColorSpace">1</int>
 									<bytes key="NSRGB">MSAxIDEAA</bytes>
@@ -161,7 +161,7 @@
 								<int key="NSvFlags">269</int>
 								<string key="NSFrame">{{174, 294}, {131, 14}}</string>
 								<reference key="NSSuperview" ref="728556925"/>
-								<reference key="NSNextKeyView" ref="924272198"/>
+								<reference key="NSNextKeyView" ref="381831426"/>
 								<string key="NSReuseIdentifierKey">_NS:328</string>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClipsSubviews">YES</bool>
@@ -413,7 +413,6 @@
 						<int key="NSvFlags">274</int>
 						<string key="NSFrame">{{80, -114}, {320, 548}}</string>
 						<reference key="NSSuperview" ref="774585933"/>
-						<reference key="NSNextKeyView" ref="381831426"/>
 						<string key="NSReuseIdentifierKey">_NS:196</string>
 						<reference key="IBUIBackgroundColor" ref="289189413"/>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -517,6 +516,7 @@
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{436, 276}, {44, 44}}</string>
 								<reference key="NSSuperview" ref="381831426"/>
+								<reference key="NSNextKeyView" ref="924272198"/>
 								<string key="NSReuseIdentifierKey">_NS:225</string>
 								<bool key="IBUIOpaque">NO</bool>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -1026,6 +1026,7 @@
 						<int key="objectID">12</int>
 						<reference key="object" ref="777398497"/>
 						<reference key="parent" ref="728556925"/>
+						<string key="objectName">Center Label</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">53</int>

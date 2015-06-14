@@ -20,7 +20,7 @@ typedef enum
 {
 	QuitReasonNoNetwork,          // no Wi-Fi or Bluetooth
 	QuitReasonConnectionDropped,  // communication failure with server
-	QuitReasonUserQuit,           // the user terminated the connection
-	QuitReasonServerQuit,         // the server quit the game (on purpose)
+	QuitReasonUserQuit,           // the user terminated the connection    ...client
+	QuitReasonServerQuit,         // the server quit the game (on purpose) ...server
 }
 QuitReason;

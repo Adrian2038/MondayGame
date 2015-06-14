@@ -393,7 +393,7 @@ const CGFloat cardViewVerticalGape = 17.0f;
 
 - (void)gameWaitingForClientsReady:(Game *)game
 {
-	self.centerLabel.text = NSLocalizedString(@"Waiting for other players...", @"Status text: waiting for clients");
+	self.centerLabel.text = NSLocalizedString(@"等待其它游戏玩家...", @"Status text: waiting for clients");
 }
 
 - (void)gameDidBegin:(Game *)game
